@@ -49,6 +49,7 @@ class _IconGameState extends State<IconGame> with TickerProviderStateMixin {
   double iconSize = 50.0;
   late AnimationController _controller;
   late Size screenSize;
+  bool gameStarted = false;
 
   @override
   void initState() {
@@ -58,27 +59,22 @@ class _IconGameState extends State<IconGame> with TickerProviderStateMixin {
       duration: const Duration(days: 1),
       vsync: this,
     )..addListener(_updatePositions);
-    _controller.forward();
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    screenSize = MediaQuery.of(context).size;
-    if (iconPositions.isEmpty) {
-      for (int i = 0; i < numberOfIcons; i++) {
-        iconPositions.add(_randomPosition());
-        iconDirections.add(_randomDirection());
-        iconSpeeds.add(2.0 + Random().nextDouble() * 3);
-      }
-    }
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
-  Offset _randomPosition() {
-    final random = Random();
-    final x = random.nextDouble() * (screenSize.width - iconSize);
-    final y = random.nextDouble() * (screenSize.height - iconSize);
-    return Offset(x, y);
+  void _initializePositions(Size size) {
+    for (int i = 0; i < numberOfIcons; i++) {
+      Offset position =
+          Offset(size.width / 2 - iconSize / 2, size.height / 2 - iconSize / 2);
+      iconPositions.add(position);
+      iconDirections.add(_randomDirection());
+      iconSpeeds.add(2.0 + Random().nextDouble() * 3);
+    }
   }
 
   Offset _randomDirection() {
@@ -151,6 +147,23 @@ class _IconGameState extends State<IconGame> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    if (!gameStarted) {
+      return Center(
+        child: ElevatedButton(
+          onPressed: () {
+            final size = MediaQuery.sizeOf(context);
+            _initializePositions(size);
+            setState(() {
+              screenSize = size;
+              gameStarted = true;
+              _controller.forward();
+            });
+          },
+          child: const Text('Start Game'),
+        ),
+      );
+    }
+
     if (iconVisibility.every((isVisible) => !isVisible)) {
       return const Center(
         child: Padding(
@@ -180,12 +193,6 @@ class _IconGameState extends State<IconGame> with TickerProviderStateMixin {
         );
       }),
     );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 }
 
