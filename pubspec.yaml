@@ -1,10 +1,10 @@
 name: memory_eater
-description: "A new Flutter project."
-publish_to: 'none'
+description: "A game that challenges the memory capacity of your device."
+publish_to: "none"
 version: 0.1.0
 
 environment:
-  sdk: '>=3.4.3 <4.0.0'
+  sdk: ">=3.4.3 <4.0.0"
 
 dependencies:
   flutter:
@@ -14,6 +14,11 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  build_runner: ^2.4.11
 
 flutter:
+  generate: true
   uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/data/long_long_long.json

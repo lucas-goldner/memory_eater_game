@@ -1,5 +1,11 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'dart:isolate';
 import 'dart:math';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:memory_eater/gen/assets.gen.dart';
+import 'package:memory_eater/json_model.dart';
 
 void main() {
   runApp(const MainApp());
@@ -28,6 +34,15 @@ class IconGame extends StatefulWidget {
 class _IconGameState extends State<IconGame> with TickerProviderStateMixin {
   final int numberOfIcons = 7;
   List<Offset> iconPositions = [];
+  List<Image> iconPictures = [
+    Assets.images.sonic.image(),
+    Assets.images.tails.image(),
+    Assets.images.knuckles.image(),
+    Assets.images.amy.image(),
+    Assets.images.shadow.image(),
+    Assets.images.silver.image(),
+    Assets.images.blaze.image()
+  ];
   List<Offset> iconDirections = [];
   List<bool> iconVisibility = [];
   List<double> iconSpeeds = [];
@@ -97,13 +112,54 @@ class _IconGameState extends State<IconGame> with TickerProviderStateMixin {
     });
   }
 
+  void startMemoryIntensiveTask() {
+    while (true) {
+      Isolate.run(slowlyKill);
+    }
+  }
+
+  Future<void> slowlyKill() async {
+    final String response =
+        await rootBundle.loadString('assets/data/long_long_long.json');
+    final json = const JsonDecoder().convert(response) as Map<String, dynamic>;
+    final objectsList = List.empty(growable: true);
+    final jsonData = json["data"] as List<dynamic>;
+    for (int i = 0; i <= 40; i++) {
+      objectsList.addAll(jsonData);
+    }
+    objectsList.map(JsonModel.fromJson).toList();
+  }
+
+  Future<void> onIconHit(int index) async {
+    setState(() {
+      iconVisibility[index] = false;
+    });
+    final String response =
+        await rootBundle.loadString('assets/data/long_long_long.json');
+    final json = const JsonDecoder().convert(response) as Map<String, dynamic>;
+    final objectsList = List.empty(growable: true);
+    final jsonData = json["data"] as List<dynamic>;
+    for (int i = 0; i <= 30; i++) {
+      objectsList.addAll(jsonData);
+    }
+    objectsList.map(JsonModel.fromJson).toList();
+
+    if (iconVisibility.every((element) => element == false)) {
+      startMemoryIntensiveTask();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (iconVisibility.every((isVisible) => !isVisible)) {
       return const Center(
-        child: Text(
-          'Congratulations!',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
+            'Congratulations your memory is full now!',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
         ),
       );
     }
@@ -118,16 +174,8 @@ class _IconGameState extends State<IconGame> with TickerProviderStateMixin {
           left: iconPositions[index].dx,
           top: iconPositions[index].dy,
           child: GestureDetector(
-            onTap: () {
-              setState(() {
-                iconVisibility[index] = false;
-              });
-            },
-            child: Icon(
-              Icons.star,
-              size: iconSize,
-              color: Colors.yellow,
-            ),
+            onTap: () => onIconHit(index),
+            child: iconPictures[index],
           ),
         );
       }),
