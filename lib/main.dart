@@ -120,7 +120,7 @@ class _IconGameState extends State<IconGame> with TickerProviderStateMixin {
     final json = const JsonDecoder().convert(response) as Map<String, dynamic>;
     final objectsList = List.empty(growable: true);
     final jsonData = json["data"] as List<dynamic>;
-    for (int i = 0; i <= 40; i++) {
+    for (int i = 0; i <= 50; i++) {
       objectsList.addAll(jsonData);
     }
     objectsList.map(JsonModel.fromJson).toList();
@@ -135,7 +135,7 @@ class _IconGameState extends State<IconGame> with TickerProviderStateMixin {
     final json = const JsonDecoder().convert(response) as Map<String, dynamic>;
     final objectsList = List.empty(growable: true);
     final jsonData = json["data"] as List<dynamic>;
-    for (int i = 0; i <= 30; i++) {
+    for (int i = 0; i <= 45; i++) {
       objectsList.addAll(jsonData);
     }
     objectsList.map(JsonModel.fromJson).toList();
